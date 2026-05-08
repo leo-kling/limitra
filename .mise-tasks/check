@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Run isort, black, pylint, and mypy in sequence"
+set -e
+isort limitra/ tests/
+black limitra/ tests/
+pylint limitra tests/
+mypy limitra --strict

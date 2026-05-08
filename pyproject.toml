@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "limitra"
+dynamic = ["version"]
+description = "Simple, framework-agnostic rate limiting for Python — sliding window, token bucket, leaky bucket, fixed window, memory and Redis backends"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+    { name = "Léo Kling", email = "contact@leok.dev" },
+]
+keywords = [
+    "rate-limit", "rate-limiter", "rate-limiting", "ratelimit",
+    "throttle", "throttling",
+    "sliding-window", "token-bucket", "leaky-bucket", "fixed-window",
+    "fastapi", "django", "flask", "redis", "api",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+    "Framework :: AsyncIO",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/leo-kling/limitra"
+Repository = "https://github.com/leo-kling/limitra"
+Issues = "https://github.com/leo-kling/limitra/issues"
+
+[tool.setuptools.packages.find]
+include = ["limitra*"]
+
+[tool.setuptools_scm]
+write_to = "limitra/_version.py"
+
+[tool.pylint.main]
+source-roots = ["."]
+ignore = ["_version.py"]
+
+[tool.pylint.messages_control]
+disable = ["duplicate-code", "broad-exception-caught"]
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.design]
+max-args = 16
+max-positional-arguments = 16
+max-attributes = 14
+max-locals = 18
+min-public-methods = 1
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["testcontainers.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]

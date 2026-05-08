@@ -1,0 +1,15 @@
+[tools]
+python = "3.14"
+uv = "latest"
+
+[env]
+VIRTUAL_ENV = "{{config_root}}/.venv"
+_.path = ["{{config_root}}/.venv/bin"]
+_.python.venv = { path = ".venv", create = true, uv_create_args = ["--seed"] }
+
+
+[settings]
+python.uv_venv_auto = true
+
+[task_config]
+includes = [".mise-tasks"]

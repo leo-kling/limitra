@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Sort imports with isort"
+set -e
+isort limitra/ tests/

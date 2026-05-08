@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Run the full test suite"
+set -e
+pytest tests/ -v

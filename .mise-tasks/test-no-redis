@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Run tests, skip Redis tests"
+set -e
+pytest tests/ -v -k 'not redis'

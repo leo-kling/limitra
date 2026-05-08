@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions: {}
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
+      - uses: astral-sh/setup-uv@v4
+
+      - uses: jdx/mise-action@v2
+        with:
+          install: false
+
+      - name: Install dependencies
+        run: uv pip install --system -e '.' -r requirements-dev.txt
+
+      - name: Lint
+        run: mise run pylint
+
+      - name: Type check
+        run: mise run mypy
+
+      - name: Run tests
+        run: mise run test
+
+  test-min-deps:
+    name: Min deps / Python 3.10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - uses: astral-sh/setup-uv@v4
+
+      - uses: jdx/mise-action@v2
+        with:
+          install: false
+
+      - name: Install minimum dependencies
+        run: uv pip install --system --resolution lowest-direct -e '.' -r requirements-dev.txt
+
+      - name: Run tests
+        run: mise run test

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Install project + dev dependencies into the venv"
+set -e
+uv pip install -e '.' -r requirements-dev.txt

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Build and serve the documentation locally"
+set -e
+export TMPDIR="$HOME/.cache/mkdocs-tmp"
+mkdir -p "$TMPDIR"
+pip install -r requirements-docs.txt -q
+mkdocs serve

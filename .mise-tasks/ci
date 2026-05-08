@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+#MISE description="Run full CI workflow (lint + typecheck + tests) across all Python versions from the GitHub Actions matrix"
+VERSIONS=("3.10" "3.11" "3.12" "3.13" "3.14")
+FAILED=()
+
+CI_BASE="$HOME/.cache/limitra-ci-$$"
+mkdir -p "$CI_BASE"
+trap 'rm -rf "$CI_BASE"' EXIT
+
+export TMPDIR="$HOME/.cache/limitra-tmp"
+export UV_CACHE_DIR="$HOME/.cache/uv"
+mkdir -p "$TMPDIR" "$UV_CACHE_DIR"
+
+for version in "${VERSIONS[@]}"; do
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  Python $version"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    mise install python@$version
+
+    VENV="$CI_BASE/${version}/venv"
+    uv venv "$VENV" --python $version --seed -q
+    uv pip install -q -r requirements-dev.txt -e . --python "$VENV/bin/python"
+
+    echo "--- Lint ---"
+    if ! "$VENV/bin/pylint" limitra tests/; then
+        FAILED+=("$version:lint"); continue
+    fi
+
+    echo "--- Type check ---"
+    if ! "$VENV/bin/mypy" limitra --strict; then
+        FAILED+=("$version:mypy"); continue
+    fi
+
+    echo "--- Tests ---"
+    if ! "$VENV/bin/pytest" -v --tb=short; then
+        FAILED+=("$version:tests")
+    fi
+done
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Min deps / Python 3.10"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+VENV="$CI_BASE/3.10-min/venv"
+uv venv "$VENV" --python 3.10 --seed -q
+uv pip install -q --resolution lowest-direct -r requirements-dev.txt -e . --python "$VENV/bin/python"
+
+if ! "$VENV/bin/pytest" -v --tb=short; then
+    FAILED+=("3.10:min-deps")
+fi
+
+echo ""
+if [ ${#FAILED[@]} -gt 0 ]; then
+    echo "FAILED: ${FAILED[*]}"
+    exit 1
+fi
+echo "All versions passed!"

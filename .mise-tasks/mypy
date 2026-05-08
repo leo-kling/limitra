@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Type-check with mypy"
+set -e
+mypy limitra --strict
